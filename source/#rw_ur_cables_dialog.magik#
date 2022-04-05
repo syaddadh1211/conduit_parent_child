@@ -573,6 +573,7 @@ _method rw_ur_cables_dialog.get_data_ur(ur1)
 		.table_list.add_last(sheath_ur1)
 	_endloop
 
+	.items[:goto_conduit].enabled? << _true 
 	_self.changed(:table_ur1, :refresh)
 
 _endmethod
@@ -772,7 +773,15 @@ _method rw_ur_cables_dialog.goto_int1()
 	
 _endmethod
 $
-
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.goto_conduit()
+	## 
+	## 
+	
+#	ed << .owner.plugin(:editor_manager)
+#	ef << ed.display_object_in_embedded_editor(.current_selection_ur1)
+_endmethod
+$
 
 _pragma(classify_level=restricted)
 _method rw_ur_cables_dialog.goto_int2()
@@ -795,13 +804,7 @@ _pragma(classify_level=restricted)
 _method rw_ur_cables_dialog.open_child_ur1()
 	
 #	_self.changed(:table_ur1, :refresh)
-	_self.changed(:table_ur2, :refresh)
-		
-
-
-	
-#	ed << .owner.plugin(:editor_manager)
-#	ef << ed.display_object_in_embedded_editor(.current_selection_ur1)
+	_self.changed(:table_ur2, :refresh)		
 #
 #	obj1 << .current_selection_ur1.get_spatial_context(:cross_section)
 #	#.mapman.goto(internals_sc)
