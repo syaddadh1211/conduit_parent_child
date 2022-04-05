@@ -1,0 +1,659 @@
+#% text_encoding = iso8859_1
+# ************************************************************
+#
+# (c) 2022 Realworld Systems. All Rights Reserved.
+# Date: 048 April 2022
+# ************************************************************
+
+_package sw
+$
+
+remex(:rw_ur_cables_dialog)
+$
+
+_pragma(classify_level=restricted)
+def_slotted_exemplar(:rw_ur_cables_dialog,
+	{
+		{ :current_selection_ur1,_unset },
+		{ :current_selection_ur2,_unset },
+		{ :items,            _unset },
+		{ :table_list,       _unset },
+		{ :table_list2,       _unset },
+		{ :styles,           _unset },
+		{ :owner,            _unset },
+		{ :grs,              _unset },
+		{ :mapman,           _unset },
+		{ :ed,               _unset },
+		{ :ev,               _unset },
+		{ :records,          _unset },
+		{:engine, _unset}
+	},{:model})
+$
+
+_pragma(classify_level=restricted)
+rw_ur_cables_dialog.define_shared_constant( :databus_consumer_data_types,
+    { :map_selection },
+    :public )
+
+$
+#
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.new(_optional owner, framework)
+	## 
+	## 
+	>> _clone.init(owner, framework)
+_endmethod
+$
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.init(owner, framework)
+	## 
+	##
+	_super.init()
+
+	.ev << gis_program_manager.cached_dataset(:gis)
+	.owner << owner
+	.grs << framework
+
+	.mapman << .grs.plugin(:map_plugin)
+	.ed << .grs.plugin(:editor_manager)
+	.items << hash_table.new()
+	.current_selection_ur1 << _unset
+	.current_selection_ur2 << _unset
+	
+	# Data holder
+	.table_list << rope.new()
+	.table_list2 << rope.new()
+	.records << rope.new()
+
+	.engine << rw_ur_cables_engine.new(.owner, .grs)
+
+	# Add dependent dialog to plugin
+	_self.add_dependent(.owner)
+        >> _self
+_endmethod
+$
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.activate_in( parent )
+	## 
+	##
+	parent.title << "Check Underground Route cables"
+	top_outer << sw_container.new( parent, _unset, 1,
+				       :outer_spacing, 4,
+				       :row_spacing, 4,
+				       :row_resize_values, {0,1},
+				       :width, 900,
+				       :height, 200 )
+
+	first_con << sw_border_container.new( top_outer, _unset, 1,
+					      :label, "",
+					      :row_resize_values,{0,1})
+	v
+	
+	_self.build_toolbar( first_con )
+	#_self.build_label_result( first_con )
+	
+	second_con << sw_border_container.new( top_outer, _unset, 2,
+					      :label, "",
+					      :width, 200,
+					      :height, 200,
+					      :row_resize_values,{0})
+
+	_self.build_table_ur1( second_con )
+	_self.build_table_ur2( second_con )
+
+#	thirt_con << sw_border_container.new( top_outer, _unset, 1,
+#					      :label, "",
+#					      :width, 50,
+#					      :row_resize_values,{0})
+	
+#	_self.build_toolbar_second( thirt_con )
+#	_self.build_label_result2( thirt_con )
+	
+_endmethod
+$
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.build_toolbar( parent )
+	## 
+	##
+	toolbar << sw_container.new( parent, 1, _unset,
+				     :col_spacing, 15  
+				)
+	file_toolbar << sw_toolbar_container.new( toolbar, _false,
+						  :background_type, :button_group,
+						  :button_group_height, sw_item.default_item_height )
+
+
+	sw_label_item.new( file_toolbar, "Object Id:")
+	
+	.items[:ur1] << sw_text_item.new( file_toolbar, :editable?, _false, :width, 400)
+	.items[:ur1].text_items << {{:ur1,"Underground Route 1"}}
+	
+
+	.items[:add_ur1] << sw_button_item.new( file_toolbar,
+					       :image, {:add_to_layout, :pni_tools},
+					       :model, _self,
+					       :selector, :get_ur1|()|,
+					       :tooltip, "Set Undergroud Route 1" )
+
+	.items[:goto1] << sw_button_item.new( file_toolbar,
+					       :image, {:goto_object, :ui_resources},
+					       :model, _self,
+					       :selector, :goto1|()|,
+					       :enabled?, _false,
+					       :tooltip, "GoTo Undergroud Route 1" )
+	
+	.items[:goto_int1] << sw_button_item.new( file_toolbar,
+					       :image, {:goto_internals, :pni_application},
+					       :model, _self,
+					       :selector, :goto_int1|()|,
+					       :enabled?, _false,
+					       :tooltip, "GoTo Internals Undergroud Route 1" )
+
+#	sw_label_item.new( file_toolbar, "Merge With :" )
+#
+#	.items[:ur2] << sw_text_item.new( file_toolbar, :editable?, _false )
+#	.items[:ur2].text_items << {{:ur2,"Underground Route 2"}}
+
+
+#	.items[:add_ur2] << sw_button_item.new( file_toolbar,
+#					       :image, {:add_to_layout, :pni_tools},
+#					       :model, _self,
+#					       :selector, :get_ur2|()|,
+#					       :enabled?, _false,
+#					       :tooltip, "Set Undergroud Route 2" )
+#	.items[:goto2] << sw_button_item.new( file_toolbar,
+#					       :image, {:goto_object, :ui_resources},
+#					       :model, _self,
+#					       :selector, :goto2|()|,
+#					       :enabled?, _false,
+#					       :tooltip, "GoTo Undergroud Route 2" )
+#	
+#	.items[:goto_int2] << sw_button_item.new( file_toolbar,
+#					       :image, {:goto_internals, :pni_application},
+#					       :model, _self,
+#					       :selector, :goto_int2|()|,
+#					       :enabled?, _false,
+#					       :tooltip, "GoTo Internals Undergroud Route 2" )
+
+	sw_label_item.new( file_toolbar, "        " )
+	
+	.items[:run_check] << sw_button_item.new( file_toolbar,
+					       :image, {:run, :ui_resources},
+					       :model, _self,
+					       :selector, :get_result|()|,
+					       #:enabled?, _false,
+					       :tooltip, "Check " )
+
+	.items[:clear] << sw_button_item.new( file_toolbar,
+					       :image, {:clear, :ui_resources},
+					       :model, _self,
+					       :selector, :clear|()|,
+					       :tooltip, "Clear" )
+
+
+_endmethod
+$
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.build_toolbar_second( parent )
+	## 
+	##
+	toolbar << sw_container.new( parent, 1, _unset,
+				     :col_spacing, 15  
+				)
+	file_toolbar << sw_toolbar_container.new( toolbar, _false,
+						  :background_type, :button_group,
+						  #:col_alignment, :fill,
+						  :button_group_height, sw_item.default_item_height )
+
+
+	.items[:check_merge] << sw_button_item.new( file_toolbar,
+					      :image, {:associate, :mit_base_gui},
+					      #:image, {:nw_01_15_15_cur, :ui_resources},
+					      :model, _self,
+					      :enabled?, _false,
+					      :selector, :check_merge|()|,
+					      :tooltip, "" )
+	
+	.items[:clr_selection] << sw_button_item.new( file_toolbar,
+					       :image, {:clear, :ui_resources},
+					       :model, _self,
+					       :enabled?, _false ,
+					       :selector, :clear_selection|()|,
+					       :tooltip, "" )
+
+#	file_toolbar2 << sw_toolbar_container.new( toolbar, _false,
+#						  :background_type, :button_group,
+#						  :col_alignment, :fill,
+#						  :button_group_height, sw_item.default_item_height )
+
+
+#	.items[:add_2] << sw_button_item.new( file_toolbar,
+#					       :image, {:add_to_layout, :pni_tools},
+#					       :model, _self,
+#					      # :selector, :get_ur2|()|,
+#					       #:enabled?, _false,
+#					       :tooltip, "" )
+
+
+_endmethod
+$
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.build_label_result2( parent )
+	## 
+	##
+	
+	text_container << sw_container.new( parent, _unset, 1, :row_spacing, 5, :outer_spacing, 10)
+
+	.items[:result2] << sw_text_window.new( text_container,
+					       :col_alignment, :fill
+					  )
+	.items[:result2].text <<""
+	
+	.items[:result2].colour << colour.called(:white)
+
+_endmethod
+$
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.build_label_result( parent )
+	## 
+	##
+	
+	text_container << sw_container.new( parent, _unset, 1, :row_spacing, 5, :outer_spacing, 10)
+
+	.items[:result] << sw_text_window.new( text_container,
+					       :col_alignment, :fill
+					  )
+	.items[:result].text <<""
+	
+	.items[:result].colour << colour.called(:white)
+
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={sw2plp,api_client})
+_method rw_ur_cables_dialog.build_table_ur1( parent )
+	## 
+	##
+	.items[:table] << a_table << sw_table.new( parent,
+				 :model, _self,
+				 :label, "Parent",
+				 :aspect, :table_ur1,
+				 :data_selector, :populate_ur1|()|,
+				 #:text_style , .styles[:true_style],
+				 :selection_notifier, :table_selected_ur1|()|,
+				 :double_click_notifier,:|open_child_ur1()|,
+				 :row_lines?, _true,
+				 #:enabled?,  _false ,
+				 :selection_type, :row, # :row or :cell
+				 :selection_mode, :one, # :many or :one
+				 :min_height, 250 )
+	a_table.n_cols << 6
+	a_table.set_column_labels({"",
+				   "Object",
+				   "Id",
+				   "Name"
+			#	   "Parent"
+			#	   "straight?"
+				  })
+ 
+	a_table.col_resize_values << {0.2,1,1,1}
+	# The table can be filtered, sorted and columns can be
+	# reordered and hidden
+	a_table.enable_filter? << _true
+	a_table.enable_sort? << _true
+	a_table.enable_manage_columns? << _true
+#	a_table.set_column_image(1, {:traffic_light_red, :ui_resources})
+
+#	_self.setup_ti_popup
+#	.items[:txt_window] << text_window.new(	parent,5,
+#							_unset, agent,
+#							:editable?, _false,
+#							:col_alignment, :fill
+#					     )
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={sw2plp,api_client})
+_method rw_ur_cables_dialog.build_table_ur2( parent )
+	## rw_ur_cables_dialog
+	##
+#	.items[:table2] << a_table2 << sw_table.new( parent,
+#				 :model, _self,
+#				 :label, "Childs",
+#				 :aspect, :table_ur2,
+#				 :data_selector, :populate_ur2|()|,
+#				 :selection_notifier, :table_selected_ur2|()|,
+#				 :double_click_notifier,:|open_editor_ur2()|,
+#				 :row_lines?, _true,
+#				 :selection_type, :row, # :row or :cell
+#				 :selection_mode, :one, # :many or :one
+#				 :min_height, 250 )
+#	a_table2.n_cols << 6
+#	a_table2.set_column_labels({"",
+#				    "Object",
+#				    "Id",
+#				    "Name"				   
+#				  })
+#	a_table2.col_resize_values << {0.2,1,1,1}
+#	# The table can be filtered, sorted and columns can be
+#	# reordered and hidden
+#	a_table2.enable_filter? << _true
+#	a_table2.enable_sort? << _true
+#	a_table2.enable_manage_columns? << _true
+#	
+_endmethod
+$
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.get_data_ur2(ur2)
+	##
+	##
+	
+	.engine.get_data_ur2(ur2, .table_list2, _self )
+
+_endmethod
+$
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.populate_ur1( a_table )
+	##
+	.items[:table2] << a_table2 << sw_table.new( parent,
+				 :model, _self,
+				 :label, "Children",
+				 :aspect, :table_ur2,
+				 :data_selector, late_ur1( a_table )
+	## 
+	##
+
+	row << 1
+	rd << {:traffic_light_red, :ui_resources}
+	gr << {:traffic_light_grey, :ui_resources}
+	tk << {:conduit_p_c, :ui_resources}
+	c_parent << rope.new()
+	
+	_for a_rec  _over .table_list.fast_elements()
+	_loop		
+#		a_table.add_cell(row, 1, {}, {:label, row.write_string})
+#		a_table.add_cell( row, 2, {}, {:label, a_rec.external_name })
+#		a_table.add_cell( row, 3, {}, {:label, a_rec.id })
+#		a_table.add_cell( row, 4, {}, {:label, a_rec.name })
+#		_if .table_list2.includes?(a_rec) _is _false 
+#		_then 
+#			a_table.add_cell( row, 3, {}, {:image, rd })
+#		_else
+#			a_table.add_cell( row, 3, {}, {:image, gr })
+#		_endif
+
+		
+
+		_for a_rec1 _over .table_list.fast_elements()
+		_loop
+			_if (a_rec1.is_parent_of?(a_rec)) _is _true _then
+				
+				_if (c_parent.size>0)
+				_then
+					_for i _over c_parent.fast_elements()
+					_loop
+						_if (i.id <> a_rec1.id)
+						_then
+							c_parent.add(a_rec1)
+						_endif
+					_endloop 
+				_else
+					c_parent.add(a_rec1)
+				_endif 
+				
+			#	a_table.add_cell( row, 5, {}, {:label, a_rec1.id.write_string })
+				_leave
+			_else
+				
+			
+#				a_table.set_row_data( row, a_rec )
+#				a_table.add_cell(row, 1, {}, {:image, tk})
+#				a_table.amdd_cell( row, 2, {}, {:label, a_rec.external_name })
+#				a_table.add_cell( row, 3, {}, {:label, a_rec.id })
+#				a_table.add_cell( row, 4, {}, {:label, a_rec.name })
+			_endif
+		_endloop
+
+
+#		_for a_rec1 _over .table_list2.fast_elements()
+#		_loop
+#			_if a_rec1.id = a_rec.id _then  
+#				a_table.add_cell( row, 6, {}, {:image, gr })
+#				a_table.enable_row( row, _false)
+#				_leave
+#			_else
+#				a_table.add_cell( row, 6, {}, {:image, rd })
+#			_endif
+#		_endloop
+		
+		
+		row +<< 1
+	_endloop
+
+#	Parent
+
+	row << 1
+	_for i _over c_parent.fast_elements()
+	_loop
+		a_table.set_row_data( row, i )
+		a_table.add_cell(row, 1, {}, {:image, tk})
+		a_table.add_cell( row, 2, {}, {:label, i.external_name })
+		a_table.add_cell( row, 3, {}, {:label, i.id })
+		a_table.add_cell( row, 4, {}, {:label, i.name })
+		row +<< 1
+	_endloop 
+	
+_endmethod
+$
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.populate_ur2( a_table )
+	## 
+	##
+	
+#	row << 1
+#	rd << {:traffic_light_red, :ui_resources}
+#	gr << {:traffic_light_grey, :ui_resources}
+#	tk << {:tick, :ui_resources}
+#	
+#	_for a_rec  _over .table_list2.fast_elements()
+#	_loop
+#	
+#		a_table.set_row_data( row, a_rec )
+#		a_table.add_cell(row, 1, {}, {:label, row.write_string})
+#		a_table.add_cell( row, 2, {}, {:label, a_rec.external_name })
+#		a_table.add_cell( row, 3, {}, {:label, a_rec.id })
+#		a_table.add_cell( row, 4, {}, {:label, a_rec.name })
+#		_if .table_list.includes?(a_rec) _is _false 
+#		_then 
+#			a_table.add_cell( row, 3, {}, {:image, rd })
+#		_else
+#			a_table.add_cell( row, 3, {}, {:image, gr })
+#		_endif
+
+	
+
+#		_for a_rec2 _over .table_list2.fast_elements()
+#		_loop
+#			_if a_rec2.is_parent_of?(a_rec) _is _true  _then  
+#				a_table.add_cell( row, 5, {}, {:label, a_rec2.id.write_string })
+#				_leave
+#			_else
+#				a_table.add_cell( row, 5, {}, {:image, tk })
+#			_endif
+#		_endloop
+#
+#		_for a_rec2 _over .table_list.fast_elements()
+#		_loop
+#			_if a_rec2.id = a_rec.id _then  
+#				a_table.add_cell( row, 6, {}, {:image, gr })
+#				a_table.enable_row( row, _false)
+#				_leave
+#			_else
+#				a_table.add_cell( row, 6, {}, {:image, rd })
+#			_endif
+#		_endloop
+				
+#		row +<< 1
+#	_endloop
+
+		tk << {:conduit_p_c, :ui_resources}
+	
+	row << 1
+	_for a_rec  _over .table_list.fast_elements()
+	_loop		
+		_for a_rec1 _over .table_list.fast_elements()
+		_loop
+			_if (a_rec1.is_parent_of?(a_rec)) _is _true _then
+
+				
+				a_table.set_row_data( row, a_rec )
+				a_table.add_cell(row, 1, {}, {:image, tk})
+				a_table.add_cell( row, 2, {}, {:label, a_rec.external_name })
+				a_table.add_cell( row, 3, {}, {:label, a_rec.id })
+				a_table.add_cell( row, 4, {}, {:label, a_rec.name })			
+				_leave
+			_endif
+		_endloop
+		row +<< 1
+	_endloop
+
+_endmethod
+$
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.table_selected_ur1( selection )
+	## 
+	##
+	_global sel
+	sel << selection
+	.current_selection_ur1 << selection.get_row_data_from_selection().an_element()	
+
+_endmethod
+$
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.table_selected_ur2( selection )
+	## 
+	##
+	_global sel
+	sel << selection
+#	.current_selection_ur2 << selection.get_row_data_from_selection().an_element()	
+_endmethod
+$
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.goto1()
+	## 
+	##
+
+	.engine.goto1(.items, .records)
+
+_endmethod
+$
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.goto2()
+	## 
+	##
+
+#	.engine.goto2(.items, .records)
+
+_endmethod
+$
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.goto_int1()
+	## 
+	##
+
+	.engine.goto_int1(.items, .records)
+
+_endmethod
+$
+
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.goto_int2()
+	## 
+	##
+
+#	.engine.goto_int2(.items, .records)
+	
+
+_endmethod
+$
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.open_child_ur1(a_table)
+
+
+	_self.changed(:table_ur1, :refresh)
+	_if .current_selection_ur1 _is _unset _then
+		_return 
+	_endif
+	
+
+	
+#	ef << .ed.display_object_in_embedded_editor(.current_selection_ur1)
+#	obj1 << .current_selection_ur1.get_spatial_context(:cross_section)
+#	#.mapman.goto(internals_sc)
+#	#.owner.databus.make_data_available(:geometry_to_highlight, internals_sc)
+#	.grs.databus.make_data_available(:goto_request,{obj1, :highlight?, _true})
+
+_endmethod
+$
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.open_editor_ur2()
+	##
+	##
+	_self.changed(:table_ur1, :refresh)
+	_if .current_selection_ur2 _is _unset _then
+		_return 
+	_endif
+	
+	ef << .ed.display_object_in_embedded_editor(.current_selection_ur2)
+	obj2 << .current_selection_ur2.get_spatial_context(:cross_section)
+	#.mapman.goto(internals_sc)
+	#.owner.databus.make_data_available(:geometry_to_highlight, internals_sc)
+	.grs.databus.make_data_available(:goto_request,{obj2, :highlight?, _true})
+
+_endmethod
+$
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.check_merge()
+	##
+	##
+
+#	.engine.check_merge(.items, .current_selection_ur1, .current_selection_ur2, _self )
+
+_endmethod
+$
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.manage_actions()
+	## 
+	##
+
+	.table_list.empty? _andif .table_list2.empty?.not
+
+_endmethod
+$
+
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.wm_close()
+	## 
+	## 
+	_self.clear()
+	_self.close()
+_endmethod
+$
+
