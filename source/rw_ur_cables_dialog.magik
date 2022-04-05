@@ -483,7 +483,7 @@ _method rw_ur_cables_dialog.get_result()
 	.table_list.empty()
 	.table_list2.empty()
 	.current_selection_ur1 << _unset 
-	.current_selection_ur2 << _unset 
+#	.current_selection_ur2 << _unset 
 	_self.changed(:table_ur1, :refresh)
 #	_self.changed(:table_ur2, :refresh)
 	_self.int!get_result()
@@ -496,57 +496,9 @@ _endmethod
 
 _pragma(classify_level=restricted)
 _method rw_ur_cables_dialog.int!get_result()
-
 	
-	# if record empty then user direct check 
-	_if .records.empty? _is _true _then 
-
-		sel << .mapman.current_map.current_selection
-		#an_rwo << sel.an_element().rwo	
-		
-		_if sel.empty? _is _false _then
-			_if sel.size = 1 _then
-	
-				#urr << rope.new()
-				_for ur _over sel.fast_elements()
-				_loop
-					.records.add(ur.rwo)
-				_endloop
-
-				.items[:ur1].text_items << {{:ur1,.records[1].id.write_string},{:name,"Name : "+.records[1].name.write_string.default("")}} #,{:width,"Width : "+.records[1].width.write_string}}
-			#	.items[:ur2].text_items << {{:ur1,.records[2].id.write_string},{:name,"Name : "+.records[2].name.write_string.default("")},{:width,"Width : "+.records[2].width.write_string}}
-
-				.items[:add_ur1].enabled? << _false
-			#	.items[:add_ur2].enabled? << _false
-				.items[:goto1].enabled? << _true
-			#	.items[:goto2].enabled? << _true
-				.items[:goto_int1].enabled? << _true
-			#	.items[:goto_int2].enabled? << _true
-				# 
-				result << _true 
-
-			_else
-			
-				.owner.show_alert("Check Selected Object and Ensure to select Underground Routes Object")
-				#result << _false
-			
-			_endif
-	
-		_else
-			.owner.show_alert("No Selected Underground Routes Object on Map")
-		_endif
-	_endif
-
-	_if result _is _true _then
-	#	.items[:result].text << "Can Be Merge "
-		_self.get_data_ur(.records[1])
-		.items[:run_check].enabled? << _false
-	#	.items[:check_merge].enabled? << _true 
-		.items[:clr_selection].enabled? << _true 
-		#_self.get_data_ur1(.records[1])
-		#_self.get_data_ur2(.records[2])
-
-	_endif
+	_self.get_data_ur(.records[1])
+	.items[:run_check].enabled? << _false	
 	
 _endmethod
 $
@@ -607,11 +559,11 @@ _method rw_ur_cables_dialog.get_data_ur(ur1)
 		.table_list.add_last(data_conduit_ur1)
 	_endloop
 
-	_for data_cable_ur1 _over cbl_ur1.fast_elements()
-	_loop
-		sheath_ur1 << data_cable_ur1.sheath_with_loc 
-		.table_list.add_last(sheath_ur1)
-	_endloop
+#	_for data_cable_ur1 _over cbl_ur1.fast_elements()
+#	_loop
+#		sheath_ur1 << data_cable_ur1.sheath_with_loc 
+#		.table_list.add_last(sheath_ur1)
+#	_endloop
 
 	_self.changed(:table_ur1, :refresh)
 
