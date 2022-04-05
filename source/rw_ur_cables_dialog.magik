@@ -2,9 +2,8 @@
 # ************************************************************
 #
 # (c) 2022 Realworld Systems. All Rights Reserved.
-# Date: 18 March 2022
+# Date: 04 April 2022
 # ************************************************************
-
 
 
 _package sw
@@ -135,13 +134,13 @@ _pragma(classify_level=restricted)
 _method rw_ur_cables_dialog.activate_in( parent )
 	## 
 	##
-	parent.title << "Check Underground Route For Possible Merge"
+	parent.title << "Check Underground Route Conduit Parent and Childs"
 	top_outer << sw_container.new( parent, _unset, 1,
 				       :outer_spacing, 4,
 				       :row_spacing, 4,
 				       :row_resize_values, {0,1},
 				       :width, 900,
-				       :height, 400 )
+				       :height, 150 )
 
 	first_con << sw_border_container.new( top_outer, _unset, 1,
 					      :label, "",
@@ -149,7 +148,7 @@ _method rw_ur_cables_dialog.activate_in( parent )
 	
 	
 	_self.build_toolbar( first_con )
-	_self.build_label_result( first_con )
+#	_self.build_label_result( first_con )
 	
 	second_con << sw_border_container.new( top_outer, _unset, 2,
 					      :label, "",
@@ -159,13 +158,13 @@ _method rw_ur_cables_dialog.activate_in( parent )
 	_self.build_table_ur1( second_con )
 	_self.build_table_ur2( second_con )
 
-	thirt_con << sw_border_container.new( top_outer, _unset, 1,
-					      :label, "",
-					      :width, 50,
-					      :row_resize_values,{0})
-	
-	_self.build_toolbar_second( thirt_con )
-	_self.build_label_result2( thirt_con )
+#	thirt_con << sw_border_container.new( top_outer, _unset, 1,
+#					      :label, "",
+#					      :width, 50,
+#					      :row_resize_values,{0})
+#	
+#	_self.build_toolbar_second( thirt_con )
+#	_self.build_label_result2( thirt_con )
 	
 _endmethod
 $
@@ -173,6 +172,8 @@ $
 _pragma(classify_level=restricted)
 _method rw_ur_cables_dialog.build_toolbar( parent )
 	## 
+	##
+## 
 	##
 	toolbar << sw_container.new( parent, 1, _unset,
 				     :col_spacing, 15  
@@ -184,7 +185,7 @@ _method rw_ur_cables_dialog.build_toolbar( parent )
 
 	sw_label_item.new( file_toolbar, "Object Id:")
 	
-	.items[:ur1] << sw_text_item.new( file_toolbar, :editable?, _false)
+	.items[:ur1] << sw_text_item.new( file_toolbar, :editable?, _false, :width, 400)
 	.items[:ur1].text_items << {{:ur1,"Underground Route 1"}}
 	
 
@@ -208,31 +209,31 @@ _method rw_ur_cables_dialog.build_toolbar( parent )
 					       :enabled?, _false,
 					       :tooltip, "GoTo Internals Undergroud Route 1" )
 
-	sw_label_item.new( file_toolbar, "Merge With :" )
+#	sw_label_item.new( file_toolbar, "Merge With :" )
+#
+#	.items[:ur2] << sw_text_item.new( file_toolbar, :editable?, _false )
+#	.items[:ur2].text_items << {{:ur2,"Underground Route 2"}}
 
-	.items[:ur2] << sw_text_item.new( file_toolbar, :editable?, _false )
-	.items[:ur2].text_items << {{:ur2,"Underground Route 2"}}
 
-
-	.items[:add_ur2] << sw_button_item.new( file_toolbar,
-					       :image, {:add_to_layout, :pni_tools},
-					       :model, _self,
-					       :selector, :get_ur2|()|,
-					       :enabled?, _false,
-					       :tooltip, "Set Undergroud Route 2" )
-	.items[:goto2] << sw_button_item.new( file_toolbar,
-					       :image, {:goto_object, :ui_resources},
-					       :model, _self,
-					       :selector, :goto2|()|,
-					       :enabled?, _false,
-					       :tooltip, "GoTo Undergroud Route 2" )
-	
-	.items[:goto_int2] << sw_button_item.new( file_toolbar,
-					       :image, {:goto_internals, :pni_application},
-					       :model, _self,
-					       :selector, :goto_int2|()|,
-					       :enabled?, _false,
-					       :tooltip, "GoTo Internals Undergroud Route 2" )
+#	.items[:add_ur2] << sw_button_item.new( file_toolbar,
+#					       :image, {:add_to_layout, :pni_tools},
+#					       :model, _self,
+#					       :selector, :get_ur2|()|,
+#					       :enabled?, _false,
+#					       :tooltip, "Set Undergroud Route 2" )
+#	.items[:goto2] << sw_button_item.new( file_toolbar,
+#					       :image, {:goto_object, :ui_resources},
+#					       :model, _self,
+#					       :selector, :goto2|()|,
+#					       :enabled?, _false,
+#					       :tooltip, "GoTo Undergroud Route 2" )
+#	
+#	.items[:goto_int2] << sw_button_item.new( file_toolbar,
+#					       :image, {:goto_internals, :pni_application},
+#					       :model, _self,
+#					       :selector, :goto_int2|()|,
+#					       :enabled?, _false,
+#					       :tooltip, "GoTo Internals Undergroud Route 2" )
 
 	sw_label_item.new( file_toolbar, "        " )
 	
@@ -248,7 +249,6 @@ _method rw_ur_cables_dialog.build_toolbar( parent )
 					       :model, _self,
 					       :selector, :clear|()|,
 					       :tooltip, "Clear" )
-
 
 _endmethod
 $
@@ -338,7 +338,7 @@ _method rw_ur_cables_dialog.build_table_ur1( parent )
 	##
 	.items[:table] << a_table << sw_table.new( parent,
 				 :model, _self,
-				 :label, "Underground Route 1",
+				 :label, "Parent",
 				 :aspect, :table_ur1,
 				 :data_selector, :populate_ur1|()|,
 				 #:text_style , .styles[:true_style],
@@ -350,15 +350,15 @@ _method rw_ur_cables_dialog.build_table_ur1( parent )
 				 :selection_mode, :one, # :many or :one
 				 :min_height, 250 )
 	a_table.n_cols << 6
-	a_table.set_column_labels({"No",
+	a_table.set_column_labels({"",
 				   "Object",
 				   "Id",
-				   "Name",
-				   "Parent",
-				   "straight?"
+				   "Name"
+#				   "Parent",
+#				   "straight?"
 				  })
  
-	a_table.col_resize_values << {1,1,1,1,1,1}
+	a_table.col_resize_values << {0.2,1,1,1}
 	# The table can be filtered, sorted and columns can be
 	# reordered and hidden
 	a_table.enable_filter? << _true
@@ -381,7 +381,7 @@ _method rw_ur_cables_dialog.build_table_ur2( parent )
 	##
 	.items[:table2] << a_table2 << sw_table.new( parent,
 				 :model, _self,
-				 :label, "Underground Route 2",
+				 :label, "Childs",
 				 :aspect, :table_ur2,
 				 :data_selector, :populate_ur2|()|,
 				 :selection_notifier, :table_selected_ur2|()|,
@@ -391,14 +391,14 @@ _method rw_ur_cables_dialog.build_table_ur2( parent )
 				 :selection_mode, :one, # :many or :one
 				 :min_height, 250 )
 	a_table2.n_cols << 4
-	a_table2.set_column_labels({"No",
+	a_table2.set_column_labels({"",
 				    "Object",
 				    "Id",
-				    "Name",
-				    "Parent",
-				    "straight?"
+				    "Name"
+#				    "Parent",
+#				    "straight?"
 				  })
-	a_table2.col_resize_values << {1,1,1,1,1,1}
+	a_table2.col_resize_values << {0.2,1,1,1}
 	# The table can be filtered, sorted and columns can be
 	# reordered and hidden
 	a_table2.enable_filter? << _true
@@ -419,7 +419,7 @@ _method rw_ur_cables_dialog.get_ur1()
 		_else	
 			an_rwo << sel.an_element().rwo
 			.records.add(an_rwo)
-			.items[:ur1].text_items << {{:id,an_rwo.id.write_string},{:name,"Name : "+an_rwo.name.write_string.default("")},{:width,"Width : "+an_rwo.width.write_string}}
+			.items[:ur1].text_items << {{:id,an_rwo.id.write_string},{:name,"Name : "+an_rwo.name.write_string.default("")}}#,{:width,"Width : "+an_rwo.width.write_string}}
 			.items[:add_ur1].enabled? << _false
 			.items[:add_ur2].enabled? << _true
 			.items[:run_check].enabled? << _false
@@ -517,11 +517,11 @@ _method rw_ur_cables_dialog.int!get_result()
 				.items[:ur2].text_items << {{:ur1,.records[2].id.write_string},{:name,"Name : "+.records[2].name.write_string.default("")},{:width,"Width : "+.records[2].width.write_string}}
 
 				.items[:add_ur1].enabled? << _false
-				.items[:add_ur2].enabled? << _false
+			#	.items[:add_ur2].enabled? << _false
 				.items[:goto1].enabled? << _true
-				.items[:goto2].enabled? << _true
+			#	.items[:goto2].enabled? << _true
 				.items[:goto_int1].enabled? << _true
-				.items[:goto_int2].enabled? << _true
+			#	.items[:goto_int2].enabled? << _true
 				# 
 				_if .records[1].rwo_collection_name _is :underground_route _and .records[2].rwo_collection_name _is :underground_route _then
 		
@@ -611,20 +611,20 @@ _method rw_ur_cables_dialog.clear()
 	.current_selection_ur1 << _unset 
 	.current_selection_ur2 << _unset
 
-	.items[:check_merge].enabled? << _false 
-	.items[:clr_selection].enabled? << _false 
+#	.items[:check_merge].enabled? << _false 
+#	.items[:clr_selection].enabled? << _false 
 	
-	.items[:result].text << ""
+#	.items[:result].text << ""
 
 	.items[:ur1].text_items << {{:ur1,"Underground Route 1"}}
-	.items[:ur2].text_items << {{:ur2,"Underground Route 2"}}
+#	.items[:ur2].text_items << {{:ur2,"Underground Route 2"}}
 	.items[:add_ur1].enabled? << _true
-	.items[:add_ur2].enabled? << _false
+#	.items[:add_ur2].enabled? << _false
 	.items[:run_check].enabled? << _true
 	.items[:goto1].enabled? << _false
-	.items[:goto2].enabled? << _false
+#	.items[:goto2].enabled? << _false
 	.items[:goto_int1].enabled? << _false
-	.items[:goto_int2].enabled? << _false
+#	.items[:goto_int2].enabled? << _false
 _endmethod
 $
 
@@ -676,14 +676,15 @@ _method rw_ur_cables_dialog.populate_ur1( a_table )
 	row << 1
 	rd << {:traffic_light_red, :ui_resources}
 	gr << {:traffic_light_grey, :ui_resources}
-	tk << {:tick, :ui_resources}
+	tk << {:conduit_p_c, :ui_resources}
+	c_parent << rope.new()
+	
 	_for a_rec  _over .table_list.fast_elements()
-	_loop
-		a_table.set_row_data( row, a_rec )
-		a_table.add_cell(row, 1, {}, {:label, row.write_string})
-		a_table.add_cell( row, 2, {}, {:label, a_rec.external_name })
-		a_table.add_cell( row, 3, {}, {:label, a_rec.id })
-		a_table.add_cell( row, 4, {}, {:label, a_rec.name })
+	_loop		
+#		a_table.add_cell(row, 1, {}, {:label, row.write_string})
+#		a_table.add_cell( row, 2, {}, {:label, a_rec.external_name })
+#		a_table.add_cell( row, 3, {}, {:label, a_rec.id })
+#		a_table.add_cell( row, 4, {}, {:label, a_rec.name })
 #		_if .table_list2.includes?(a_rec) _is _false 
 #		_then 
 #			a_table.add_cell( row, 3, {}, {:image, rd })
@@ -695,28 +696,57 @@ _method rw_ur_cables_dialog.populate_ur1( a_table )
 
 		_for a_rec1 _over .table_list.fast_elements()
 		_loop
-			_if a_rec1.is_parent_of?(a_rec) _is _true  _then  
-				a_table.add_cell( row, 5, {}, {:label, a_rec1.id.write_string })
+			_if (a_rec1.is_parent_of?(a_rec)) _is _true _then
+				
+				_if (c_parent.size>0)
+				_then
+					_for i _over c_parent.fast_elements()
+					_loop
+						_if (i.id <> a_rec1.id)
+						_then
+							c_parent.add(a_rec1)
+						_endif
+					_endloop 
+				_else
+					c_parent.add(a_rec1)
+				_endif 
+				
+			#	a_table.add_cell( row, 5, {}, {:label, a_rec1.id.write_string })
 				_leave
 			_else
-				a_table.add_cell( row, 5, {}, {:image, tk })
+				
+		
 			_endif
 		_endloop
 
-		_for a_rec1 _over .table_list2.fast_elements()
-		_loop
-			_if a_rec1.id = a_rec.id _then  
-				a_table.add_cell( row, 6, {}, {:image, gr })
-				a_table.enable_row( row, _false)
-				_leave
-			_else
-				a_table.add_cell( row, 6, {}, {:image, rd })
-			_endif
-		_endloop
+
+#		_for a_rec1 _over .table_list2.fast_elements()
+#		_loop
+#			_if a_rec1.id = a_rec.id _then  
+#				a_table.add_cell( row, 6, {}, {:image, gr })
+#				a_table.enable_row( row, _false)
+#				_leave
+#			_else
+#				a_table.add_cell( row, 6, {}, {:image, rd })
+#			_endif
+#		_endloop
 		
 		
 		row +<< 1
 	_endloop
+
+#	Parent
+
+	row << 1
+	_for i _over c_parent.fast_elements()
+	_loop
+		a_table.set_row_data( row, i )
+		a_table.add_cell(row, 1, {}, {:image, tk})
+		a_table.add_cell( row, 2, {}, {:label, i.external_name })
+		a_table.add_cell( row, 3, {}, {:label, i.id })
+		a_table.add_cell( row, 4, {}, {:label, i.name })
+		row +<< 1
+	_endloop 
 _endmethod
 $
 
@@ -993,6 +1023,6 @@ _method rw_ur_cables_dialog.wm_close()
 	## 
 	## 
 	_self.clear()
-	_super.wm_close()
+	_self.close()
 _endmethod
 $
