@@ -343,7 +343,7 @@ _method rw_ur_cables_dialog.build_table_ur1( parent )
 				 :data_selector, :populate_ur1|()|,
 				 #:text_style , .styles[:true_style],
 				 :selection_notifier, :table_selected_ur1|()|,
-				 :double_click_notifier,:|open_editor_ur1()|,
+				 :double_click_notifier,:|open_child_ur1()|,
 				 :row_lines?, _true,
 				 #:enabled?,  _false ,
 				 :selection_type, :row, # :row or :cell
@@ -384,8 +384,8 @@ _method rw_ur_cables_dialog.build_table_ur2( parent )
 				 :label, "Childs",
 				 :aspect, :table_ur2,
 				 :data_selector, :populate_ur2|()|,
-				 :selection_notifier, :table_selected_ur2|()|,
-				 :double_click_notifier,:|open_editor_ur2()|,
+			#	 :selection_notifier, :table_selected_ur2|()|,
+			#	 :double_click_notifier,:|open_editor_ur2()|,
 				 :row_lines?, _true,
 				 :selection_type, :row, # :row or :cell
 				 :selection_mode, :one, # :many or :one
@@ -520,7 +520,6 @@ _method rw_ur_cables_dialog.clear()
 	.table_list2.empty()
 	.items[:table].refresh()
 	.items[:table2].refresh()
-
 
 	.items[:table].clear_selection()
 	.items[:table2].clear_selection()
@@ -679,53 +678,32 @@ _pragma(classify_level=restricted)
 _method rw_ur_cables_dialog.populate_ur2( a_table )
 	## 
 	##
+	_if .current_selection_ur1 _is _unset _then
+		write("unset")
+		_return 
+	_endif
+
 	row << 1
 	rd << {:traffic_light_red, :ui_resources}
 	gr << {:traffic_light_grey, :ui_resources}
-	tk << {:tick, :ui_resources}
+	tk << {:conduit_p_c, :ui_resources}
+	c_parent << .current_selection_ur1
 	
-	_for a_rec  _over .table_list2.fast_elements()
-	_loop
-	
-		a_table.set_row_data( row, a_rec )
-		a_table.add_cell(row, 1, {}, {:label, row.write_string})
-		a_table.add_cell( row, 2, {}, {:label, a_rec.external_name })
-		a_table.add_cell( row, 3, {}, {:label, a_rec.id })
-		a_table.add_cell( row, 4, {}, {:label, a_rec.name })
-#		_if .table_list.includes?(a_rec) _is _false 
-#		_then 
-#			a_table.add_cell( row, 3, {}, {:image, rd })
-#		_else
-#			a_table.add_cell( row, 3, {}, {:image, gr })
-#		_endif
+	_for a_rec  _over .table_list.fast_elements()
+	_loop		
 
-	
-
-		_for a_rec2 _over .table_list2.fast_elements()
-		_loop
-			_if a_rec2.is_parent_of?(a_rec) _is _true  _then  
-				a_table.add_cell( row, 5, {}, {:label, a_rec2.id.write_string })
-				_leave
-			_else
-				a_table.add_cell( row, 5, {}, {:image, tk })
-			_endif
-		_endloop
-
-		_for a_rec2 _over .table_list.fast_elements()
-		_loop
-			_if a_rec2.id = a_rec.id _then  
-				a_table.add_cell( row, 6, {}, {:image, gr })
-				a_table.enable_row( row, _false)
-				_leave
-			_else
-				a_table.add_cell( row, 6, {}, {:image, rd })
-			_endif
-		_endloop
-
-	
+		_if (c_parent.is_parent_of?(a_rec)) _is _true _then
 				
+			a_table.add_cell(row, 1, {}, {:image, tk})
+			a_table.add_cell( row, 2, {}, {:label, a_rec.external_name })
+			a_table.add_cell( row, 3, {}, {:label, a_rec.id })
+			a_table.add_cell( row, 4, {}, {:label, a_rec.name })
+			
+		_endif 
+		
 		row +<< 1
 	_endloop
+
 _endmethod
 $
 
@@ -735,7 +713,9 @@ _method rw_ur_cables_dialog.table_selected_ur1( selection )
 	##
 	_global sel
 	sel << selection
-	.current_selection_ur1 << selection.get_row_data_from_selection().an_element()	
+	.current_selection_ur1 << selection.get_row_data_from_selection().an_element()
+
+	_self.changed(:table_ur1, :refresh)
 
 _endmethod
 $
@@ -744,9 +724,9 @@ _pragma(classify_level=restricted)
 _method rw_ur_cables_dialog.table_selected_ur2( selection )
 	## 
 	##
-	_global sel
-	sel << selection
-	.current_selection_ur2 << selection.get_row_data_from_selection().an_element()	
+#	_global sel
+#	sel << selection
+#	.current_selection_ur2 << selection.get_row_data_from_selection().an_element()	
 _endmethod
 $
 
@@ -827,21 +807,21 @@ _endmethod
 $
 
 _pragma(classify_level=restricted)
-_method rw_ur_cables_dialog.open_editor_ur1()
+_method rw_ur_cables_dialog.open_child_ur1()
 	
-	_self.changed(:table_ur1, :refresh)
-	_if .current_selection_ur1 _is _unset _then
-		write("unset")
-		_return 
-	_endif 	
+#	_self.changed(:table_ur1, :refresh)
+	_self.changed(:table_ur2, :refresh)
+		
 
-	ed << .owner.plugin(:editor_manager)
-	ef << ed.display_object_in_embedded_editor(.current_selection_ur1)
 
-	obj1 << .current_selection_ur1.get_spatial_context(:cross_section)
-	#.mapman.goto(internals_sc)
-	#.owner.databus.make_data_available(:geometry_to_highlight, internals_sc)
-	.owner.databus.make_data_available(:goto_request,{obj1, :highlight?, _true})
+	
+#	ed << .owner.plugin(:editor_manager)
+#	ef << ed.display_object_in_embedded_editor(.current_selection_ur1)
+#
+#	obj1 << .current_selection_ur1.get_spatial_context(:cross_section)
+#	#.mapman.goto(internals_sc)
+#	#.owner.databus.make_data_available(:geometry_to_highlight, internals_sc)
+#	.owner.databus.make_data_available(:goto_request,{obj1, :highlight?, _true})
 _endmethod
 $
 
