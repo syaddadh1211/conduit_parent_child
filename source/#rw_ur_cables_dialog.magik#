@@ -778,8 +778,8 @@ _method rw_ur_cables_dialog.goto_conduit()
 	## 
 	## 
 	
-#	ed << .owner.plugin(:editor_manager)
-#	ef << ed.display_object_in_embedded_editor(.current_selection_ur1)
+	ed << .owner.plugin(:editor_manager)
+	ef << ed.display_object_in_embedded_editor(.current_selection_ur1)
 _endmethod
 $
 
