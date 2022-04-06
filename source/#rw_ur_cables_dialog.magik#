@@ -416,7 +416,7 @@ _method rw_ur_cables_dialog.int!get_result()
 	##
 	##
 	
-	.engine.int!get_result(.items, .records, _self  )
+	.engine.int!get_result(_self  )
 
 _endmethod
 $
@@ -466,15 +466,15 @@ _method rw_ur_cables_dialog.clear()
 _endmethod
 $
 
-_pragma(classify_level=restricted)
-_method rw_ur_cables_dialog.get_data_ur(ur1,ur2)
-	##
-	##
-
-	.engine.get_data_ur(ur1, ur2, .table_list, .table_list2, _self )
-
-_endmethod
-$
+#_pragma(classify_level=restricted)
+#_method rw_ur_cables_dialog.get_data_ur(ur1,ur2)
+#	##
+#	##
+#
+#	.engine.get_data_ur(ur1, ur2, .table_list, .table_list2, _self )
+#
+#_endmethod
+#$
 
 _pragma(classify_level=restricted)
 _method rw_ur_cables_dialog.populate_ur1( a_table )
@@ -619,7 +619,7 @@ _method rw_ur_cables_dialog.goto1()
 	## 
 	##
 
-	.engine.goto1(.items, .records)
+	.engine.goto1(_self )
 
 _endmethod
 $
@@ -629,7 +629,7 @@ _method rw_ur_cables_dialog.goto2()
 	## 
 	##
 
-	.engine.goto2(.items, .records)
+	.engine.goto2(_self )
 
 _endmethod
 $
@@ -639,7 +639,7 @@ _method rw_ur_cables_dialog.goto_int1()
 	## 
 	##
 
-	.engine.goto_int1(.items, .records)
+	.engine.goto_int1(_self )
 
 _endmethod
 $
@@ -650,7 +650,7 @@ _method rw_ur_cables_dialog.goto_int2()
 	## 
 	##
 
-	.engine.goto_int2(.items, .records)
+	.engine.goto_int2(_self )
 	
 
 _endmethod
@@ -691,7 +691,42 @@ _method rw_ur_cables_dialog.open_editor_ur2()
 
 _endmethod
 $
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.current_selection_ur1
+	##
+	##
 
+	>> .current_selection_ur1
+
+_endmethod
+$
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.current_selection_ur2
+	##
+	##
+
+	>> .current_selection_ur2
+
+_endmethod
+$
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.table_list
+	##
+	##
+
+	>> .table_list
+
+_endmethod
+$
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.table_list2
+	##
+	##
+
+	>> .table_list2
+
+_endmethod
+$
 _pragma(classify_level=restricted)
 _method rw_ur_cables_dialog.check_merge()
 	##

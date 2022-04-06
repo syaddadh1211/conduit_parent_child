@@ -165,9 +165,10 @@ _method rw_ur_cables_engine.int!get_result(a_dialog)
 	_if a_dialog.records.empty? _is _true _then
 		.owner.show_alert("Select 1 object underground route")
 		_return 
-	_endif 
-
-	a_dialog.get_data_ur(a_dialog.records[1])
+	_endif
+	
+#.records[1]
+	_self.get_data_ur(a_dialog)
 	
 		#_self.get_data_ur1(.records[1])
 		#_self.get_data_ur2(.records[2])
@@ -177,12 +178,12 @@ _endmethod
 $
 
 _pragma(classify_level=restricted)
-_method rw_ur_cables_engine.get_data_ur(ur1, a_dialog)
+_method rw_ur_cables_engine.get_data_ur(a_dialog)
 	##
 	##
 	
-	c_ur1 << ur1.conduits
-	cbl_ur1 << ur1.cables
+	c_ur1 << a_dialog.records[1].conduits
+	cbl_ur1 << a_dialog.records[1].cables
 
 	
 	_for data_conduit_ur1 _over c_ur1.fast_elements()
