@@ -425,15 +425,25 @@ _method rw_ur_cables_dialog.get_ur1()
 	_if sel.empty? _is _false _then		
 		_if sel.size > 1 _then
 			.owner.show_alert("Select 1 Underground Route")
+			_return 
 		_else	
 			an_rwo << sel.an_element().rwo
-			.records.add(an_rwo)
-			.items[:ur1].text_items << {{:id,an_rwo.id.write_string},{:name,"Name : "+an_rwo.name.write_string.default("")}}#,{:width,"Width : "+an_rwo.width.write_string}}
-			.items[:add_ur1].enabled? << _false
-		#	.items[:add_ur2].enabled? << _true
-			.items[:run_check].enabled? << _true 
-			.items[:goto1].enabled? << _true
-			.items[:goto_int1].enabled? << _true
+		
+			_if an_rwo.is_kind_of?(underground_route) _then
+			
+				.records.add(an_rwo)
+				.items[:ur1].text_items << {{:id,an_rwo.id.write_string},{:name,"Name : "+an_rwo.name.write_string.default("")}}#,{:width,"Width : "+an_rwo.width.write_string}}
+				.items[:add_ur1].enabled? << _false
+				#	.items[:add_ur2].enabled? << _true
+				.items[:run_check].enabled? << _true 
+				.items[:goto1].enabled? << _true
+				.items[:goto_int1].enabled? << _true
+
+			_else
+				.owner.show_alert("Select 1 Underground Route")
+				_return 
+			_endif
+			
 		_endif 
 	_else
 		.owner.show_alert("Select 1 Underground Route")
@@ -558,7 +568,7 @@ $
 
 _pragma(classify_level=restricted)
 _method rw_ur_cables_dialog.get_data_ur(ur1)
-
+	
 	c_ur1 << ur1.conduits
 	cbl_ur1 << ur1.cables
 	
