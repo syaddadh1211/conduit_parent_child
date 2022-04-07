@@ -213,7 +213,7 @@ _method rw_ur_cables_engine.get_data_ur(a_dialog)
 #		table_list2.add_last(sheath_ur2)
 #	_endloop
 
-	a_dialog.changed(:table_ur1, :refresh)
+	a_dialog.changed(:tree_list, :refresh)
 #	a_dialog.changed(:table_ur2, :refresh)
 
 _endmethod

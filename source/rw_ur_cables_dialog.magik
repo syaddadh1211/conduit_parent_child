@@ -26,14 +26,7 @@ def_slotted_exemplar(:rw_ur_cables_dialog,
 		{ :ed,               _unset },
 		{ :ev,               _unset },
 		{ :records,          _unset },
-#		{ :rekom,          _unset },
-#		{ :tin,              _unset },
-#		{ :tin_sub,          _unset },
-#		{ :world_for_draw,   _unset },
-#		{ :thread_engine,    _unset },
-#		{ :current_trail,    _unset },
-#		{ :result_geometries, _unset},
-#		{ :show_results,     _unset },
+		{:list,      _unset, :writable},
 		{:engine, _unset}
 	},{:model})
 $
@@ -291,34 +284,67 @@ _pragma(classify_level=basic, topic={sw2plp,api_client})
 _method rw_ur_cables_dialog.build_table_ur1( parent )
 	## 
 	##
-	.items[:table] << a_table << sw_table.new( parent,
-				 :model, _self,
-				 :label, "Underground Route 1",
-				 :aspect, :table_ur1,
-				 :data_selector, :populate_ur1|()|,
-				 #:text_style , .styles[:true_style],
-				 :selection_notifier, :table_selected_ur1|()|,
-				 :double_click_notifier,:|open_editor_ur1()|,
-				 :row_lines?, _true,
-				 #:enabled?,  _false ,
-				 :selection_type, :row, # :row or :cell
-				 :selection_mode, :one, # :many or :one
-				 :min_height, 250 )
-	a_table.n_cols << 6
-	a_table.set_column_labels({"No",
-				   "Object",
-				   "Id",
-				   "Name",
-				   "Parent",
-				   "straight?"
-				  })
- 
-	a_table.col_resize_values << {1,1,1,1,1,1}
-	# The table can be filtered, sorted and columns can be
-	# reordered and hidden
-	a_table.enable_filter? << _true
-	a_table.enable_sort? << _true
-	a_table.enable_manage_columns? << _true
+		## Adds screen controls to P_FRAME.
+	# ----------
+	# Normal setup stuff
+	# ----------	
+	#	parent.default_resize? << _false
+	#parent.title << "A Styled Tree"
+	_local l_button_width << 80 # Normally fetched from message
+	_local l_rc << rowcol.new(parent, _unset, 1, _unset,
+				  :row_resize_values, {100, 0},
+				  :resize_x?, _true, :resize_y?, _true)
+	# ----------
+	# Create style holder with reusable image schemes
+	# ----------	
+	_local l_style_holder << string_styles_holder.new_with()
+	# define image scheme :selected_scheme with closed/open folder icons
+	# for selected/unselected elements
+	l_style_holder.add_image_scheme(:selected_scheme, :default, :closed_folder, :selected, :open_folder)
+	# define image scheme :my_scheme with bitmap resources given as image locators
+	# specified by {<bitmap_name>, <module_name>}
+	l_style_holder.add_image_scheme(:my_scheme, :default, {"search_world", :tree_examples}, 
+	                                            :selected, {"last", :ui_resources})
+	# ----------	
+	# Create tree_item
+	# ----------
+	.items[:table] << a_table << 
+		tree_item.new(l_rc,
+			      :col_alignment, :fill,
+			      :row_alignment, :fill,
+			      :model,         _self,
+			      :style_holder,  l_style_holder, # gives display trees access to defined image schemes
+			      :aspect,        :tree_list, # also provides the value of the data_selector property
+			      :mode,          :one)
+	
+#	.items[:table] << a_table << sw_table.new( parent,
+#				 :model, _self,
+#				 :label, "Underground Route 1",
+#				 :aspect, :table_ur1,
+#				 :data_selector, :populate_ur1|()|,
+#				 #:text_style , .styles[:true_style],
+#				 :selection_notifier, :table_selected_ur1|()|,
+#				 :double_click_notifier,:|open_editor_ur1()|,
+#				 :row_lines?, _true,
+#				 #:enabled?,  _false ,
+#				 :selection_type, :row, # :row or :cell
+#				 :selection_mode, :one, # :many or :one
+#				 :min_height, 250 )
+#	a_table.n_cols << 6
+#	a_table.set_column_labels({"No",
+#				   "Object",
+#				   "Id",
+#				   "Name",
+#				   "Parent",
+#				   "straight?"
+#				  })
+# 
+#	a_table.col_resize_values << {1,1,1,1,1,1}
+#	# The table can be filtered, sorted and columns can be
+#	# reordered and hidden
+#	a_table.enable_filter? << _true
+#	a_table.enable_sort? << _true
+#	a_table.enable_manage_columns? << _true
 	#a_table.set_column_image(2, {:traffic_light_red, :ui_resources})
 
 #	_self.setup_ti_popup
@@ -327,6 +353,82 @@ _method rw_ur_cables_dialog.build_table_ur1( parent )
 #							:editable?, _false,
 #							:col_alignment, :fill
 #					     )
+_endmethod
+$
+_pragma(classify_level=basic, topic={tree_item}, usage={subclassable})
+_method rw_ur_cables_dialog.tree_list
+	## A list of display trees containing painters, having other
+	## painters as child-trees.
+
+	c_parent << rope.new()	
+
+	# use a set to filter duplicates
+	_for a_rec _over .table_list.fast_elements()
+	_loop
+		
+		_for a_rec1 _over .table_list.fast_elements()
+		_loop
+			_if (a_rec1.is_parent_of?(a_rec)) _is _true _then
+				
+				_if (c_parent.size>0)
+				_then
+					_for i _over c_parent.fast_elements()
+					_loop
+						_if (i.id <> a_rec1.id)
+						_then
+							c_parent.add(a_rec1)
+						_endif
+					_endloop 
+				_else
+					c_parent.add(a_rec1)
+				_endif
+			_endif 
+		_endloop 
+	
+	_endloop
+	
+	>> .list << _self.int!tree_list(c_parent.size, c_parent)
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={tree_item}, usage={subclassable})
+_method rw_ur_cables_dialog.int!tree_list(p_size, _optional c_parent,  p_parent)
+	## Creates a list of display_tree with P_SIZE elements,
+	## optionally attached to P_PARENT; complete display trees are generated.
+	##
+	## Every display tree contains a painter as key, has its own
+	## styled string displaying the default image scheme and,
+	## if P_SIZE > 1, has max P_SIZE-1 children.
+	#	_local l_list << rope.new_for(p_size)
+	_local l_list << rope.new(p_size)
+
+	tk << {:conduit_p_c, :ui_resources}
+	
+	_for i _over c_parent.fast_elements()
+	_loop
+	
+		_local l_display_tree << display_tree.new(i, _unset, p_parent)
+		l_display_tree.styled_string << {:image, :default , i.name}
+		# the following lines, demonstrate the use of different schemes.
+		# the result is described in documentation.
+#		l_display_tree.styled_string << {:image, :selected_scheme, i_person}
+#		l_display_tree.styled_string << {:image, :my_scheme, i_person}
+#	_local l_new_size << _if p_size > 5 _then >> (p_size _div 2) _else >> (p_size - 1) _endif
+
+#		_for a_rec  _over .table_list.fast_elements()
+#		_loop		
+#			_if (i.is_parent_of?(a_rec)) _is _true _then					
+#				l_display_tree.styled_string << {:image, :default , a_rec.name}
+#				_self.int!tree_list(1, l_display_tree)
+#				l_list.add(l_display_tree)
+#			_endif		
+#		_endloop
+		l_list.add(l_display_tree)
+			   
+	_endloop
+
+	
+	>> l_list
 _endmethod
 $
 
@@ -416,7 +518,7 @@ _method rw_ur_cables_dialog.int!get_result()
 	##
 	##
 	
-	.engine.int!get_result(.items, .records, _self  )
+	.engine.int!get_result(_self )
 
 _endmethod
 $
@@ -441,8 +543,8 @@ _method rw_ur_cables_dialog.clear()
 	.items[:table2].refresh()
 
 
-	.items[:table].clear_selection()
-	.items[:table2].clear_selection()
+#	.items[:table].clear_selection()
+#	.items[:table2].clear_selection()
 	_self.changed(:table_ur1, :refresh)
 	_self.changed(:table_ur2, :refresh)
 	.records.empty()
@@ -466,15 +568,15 @@ _method rw_ur_cables_dialog.clear()
 _endmethod
 $
 
-_pragma(classify_level=restricted)
-_method rw_ur_cables_dialog.get_data_ur(ur1,ur2)
-	##
-	##
-
-	.engine.get_data_ur(ur1, ur2, .table_list, .table_list2, _self )
-
-_endmethod
-$
+#_pragma(classify_level=restricted)
+#_method rw_ur_cables_dialog.get_data_ur(ur1,ur2)
+#	##
+#	##
+#
+#	.engine.get_data_ur(ur1, ur2, .table_list, .table_list2, _self )
+#
+#_endmethod
+#$
 
 _pragma(classify_level=restricted)
 _method rw_ur_cables_dialog.populate_ur1( a_table )
@@ -619,7 +721,7 @@ _method rw_ur_cables_dialog.goto1()
 	## 
 	##
 
-	.engine.goto1(.items, .records)
+	.engine.goto1(_self )
 
 _endmethod
 $
@@ -629,7 +731,7 @@ _method rw_ur_cables_dialog.goto2()
 	## 
 	##
 
-	.engine.goto2(.items, .records)
+	.engine.goto2(_self )
 
 _endmethod
 $
@@ -639,7 +741,7 @@ _method rw_ur_cables_dialog.goto_int1()
 	## 
 	##
 
-	.engine.goto_int1(.items, .records)
+	.engine.goto_int1(_self )
 
 _endmethod
 $
@@ -650,7 +752,7 @@ _method rw_ur_cables_dialog.goto_int2()
 	## 
 	##
 
-	.engine.goto_int2(.items, .records)
+	.engine.goto_int2(_self )
 	
 
 _endmethod
@@ -691,7 +793,42 @@ _method rw_ur_cables_dialog.open_editor_ur2()
 
 _endmethod
 $
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.current_selection_ur1
+	##
+	##
 
+	>> .current_selection_ur1
+
+_endmethod
+$
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.current_selection_ur2
+	##
+	##
+
+	>> .current_selection_ur2
+
+_endmethod
+$
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.table_list
+	##
+	##
+
+	>> .table_list
+
+_endmethod
+$
+_pragma(classify_level=restricted)
+_method rw_ur_cables_dialog.table_list2
+	##
+	##
+
+	>> .table_list2
+
+_endmethod
+$
 _pragma(classify_level=restricted)
 _method rw_ur_cables_dialog.check_merge()
 	##
