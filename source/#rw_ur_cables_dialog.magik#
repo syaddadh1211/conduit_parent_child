@@ -529,9 +529,9 @@ _method rw_ur_cables_dialog.selected2(p_selection)
 			i_display_tree.selected? << _false
 		_elif (status << i_display_tree.key[:status] = "parent")
 		_then 
-			.items[:p_ur1]<< {{:ur1,i_display_tree.key[:rc]}}
+			.items[:p_ur2]<< {{:ur2,i_display_tree.key[:rc]}}
 		_else
-			.items[:p_ur1]<< _unset 			
+			.items[:p_ur2]<< _unset 			
 		_endif 
 	_endloop
 	_self.changed(:anything_selected?, _not p_selection.empty?)
