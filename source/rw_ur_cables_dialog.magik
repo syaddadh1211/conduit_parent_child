@@ -27,6 +27,7 @@ def_slotted_exemplar(:rw_ur_cables_dialog,
 		{ :ev,               _unset },
 		{ :records,          _unset },
 		{:list,      _unset, :writable},
+		{:list2,      _unset, :writable},
 		{:engine, _unset}
 	},{:model})
 $
@@ -318,7 +319,6 @@ _method rw_ur_cables_dialog.build_table_ur1( parent )
 			      :mode,          :one,
 			      :select_notifier, :|selected()|)
 
-
 _endmethod
 $
 _pragma(classify_level=basic, topic={tree_item}, usage={subclassable})
@@ -394,48 +394,144 @@ _pragma(classify_level=basic, topic={tree_item})
 _method rw_ur_cables_dialog.selected(p_selection)
 	## Check if there is anything selected, and notify this to
 	## update other controls
-		_for i_display_tree _over p_selection.elements()
-	_loop
-#		_if i_display_tree.key.includes?(%e)
-#		_then
-#			i_display_tree.selected? << _false 
-#		_endif
-		write(i_display_tree.key[:name])
+	_for i_display_tree _over p_selection.elements()
+	_loop		
+		_if (status << i_display_tree.key[:status] = "child")
+		_then
+			i_display_tree.selected? << _false
+		_else
+			.items[:p_ur1]<< {{:ur1,i_display_tree.key[:rc]}}
+		_endif 
 	_endloop
 	_self.changed(:anything_selected?, _not p_selection.empty?)
 _endmethod
 $
+
 _pragma(classify_level=basic, topic={sw2plp,api_client})
 _method rw_ur_cables_dialog.build_table_ur2( parent )
 	## 
 	##
-	.items[:table2] << a_table2 << sw_table.new( parent,
-				 :model, _self,
-				 :label, "Underground Route 2",
-				 :aspect, :table_ur2,
-				 :data_selector, :populate_ur2|()|,
-				 :selection_notifier, :table_selected_ur2|()|,
-				 :double_click_notifier,:|open_editor_ur2()|,
-				 :row_lines?, _true,
-				 :selection_type, :row, # :row or :cell
-				 :selection_mode, :one, # :many or :one
-				 :min_height, 250 )
-	a_table2.n_cols << 4
-	a_table2.set_column_labels({"No",
-				    "Object",
-				    "Id",
-				    "Name",
-				    "Parent",
-				    "straight?"
-				  })
-	a_table2.col_resize_values << {1,1,1,1,1,1}
-	# The table can be filtered, sorted and columns can be
-	# reordered and hidden
-	a_table2.enable_filter? << _true
-	a_table2.enable_sort? << _true
-	a_table2.enable_manage_columns? << _true
+			## Adds screen controls to P_FRAME.
+	# ----------
+	# Normal setup stuff
+	# ----------	
+	#	parent.default_resize? << _false
+	#parent.title << "A Styled Tree"
+	_local l_button_width << 80 # Normally fetched from message
+	_local l_rc << rowcol.new(parent, _unset, 1, _unset,
+				  :row_resize_values, {100, 0},
+				  :resize_x?, _true, :resize_y?, _true)
+	# ----------
+	# Create style holder with reusable image schemes
+	# ----------	
+	_local l_style_holder << string_styles_holder.new_with()
+	# define image scheme :selected_scheme with closed/open folder icons
+	# for selected/unselected elements
+	l_style_holder.add_image_scheme(:selected_scheme, :default, :closed_folder, :selected, :open_folder)
+	# define image scheme :my_scheme with bitmap resources given as image locators
+	# specified by {<bitmap_name>, <module_name>}
+	l_style_holder.add_image_scheme(:my_scheme, :default, {"search_world", :tree_examples}, 
+	                                            :selected, {"last", :ui_resources})
+	# ----------	
+	# Create tree_item
+	# ----------
+	.items[:table2] << a_table << 
+		tree_item.new(l_rc,
+			      :col_alignment, :fill,
+			      :row_alignment, :fill,
+			      :model,         _self,
+			      :style_holder,  l_style_holder, # gives display trees access to defined image schemes
+			      :aspect,        :tree_list2, # also provides the value of the data_selector property
+			      :mode,          :one,
+			      :select_notifier, :|selected2()|)
 _endmethod
 $
+_pragma(classify_level=basic, topic={tree_item}, usage={subclassable})
+_method rw_ur_cables_dialog.tree_list2
+	## A list of display trees containing painters, having other
+	## painters as child-trees.
+
+	c_parent << rope.new()	
+
+	# use a set to filter duplicates
+	_for a_rec _over .table_list2.fast_elements()
+	_loop
+		
+		_for a_rec1 _over .table_list2.fast_elements()
+		_loop
+			_if (a_rec1.is_parent_of?(a_rec)) _is _true _then
+				
+				_if (c_parent.size>0)
+				_then
+					_for i _over c_parent.fast_elements()
+					_loop
+						_if (i.id <> a_rec1.id)
+						_then
+							c_parent.add(a_rec1)
+						_endif
+					_endloop 
+				_else
+					c_parent.add(a_rec1)
+				_endif
+			_endif 
+		_endloop 
+	
+	_endloop
+	
+	>> .list2 << _self.int!tree_list2(c_parent.size, c_parent)
+_endmethod
+$
+_pragma(classify_level=basic, topic={tree_item}, usage={subclassable})
+_method rw_ur_cables_dialog.int!tree_list2(p_size, _optional c_parent,  p_parent)
+	## Creates a list of display_tree with P_SIZE elements,
+	## optionally attached to P_PARENT; complete display trees are generated.
+	##
+	## Every display tree contains a painter as key, has its own
+	## styled string displaying the default image scheme and,
+	## if P_SIZE > 1, has max P_SIZE-1 children.
+	#	_local l_list << rope.new_for(p_size)
+	_local l_list << rope.new(p_size)
+
+	tk << {:conduit_p_c, :ui_resources}
+
+	_for i _over c_parent.fast_elements()
+	_loop
+	
+		_local l_display_tree << display_tree.new( property_list.new_with(:name, i.name, :rc, i, :status, "parent"), _unset, p_parent)
+		l_display_tree.styled_string << {:image, tk , i.name}
+	
+		_for a_rec  _over .table_list2.fast_elements()
+		_loop		
+			_if (i.is_parent_of?(a_rec)) _is _true _then					
+				_local l_display_tree1 << display_tree.new( property_list.new_with(:name, a_rec.name, :rc, a_rec, :status, "child"), _unset, l_display_tree)
+				l_display_tree1.styled_string << {:image, tk , a_rec.name}				
+			_endif		
+		_endloop		
+		l_list.add(l_display_tree)
+	_endloop
+
+	
+	>> l_list
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={tree_item})
+_method rw_ur_cables_dialog.selected2(p_selection)
+	## Check if there is anything selected, and notify this to
+	## update other controls
+	_for i_display_tree _over p_selection.elements()
+	_loop		
+		_if (status << i_display_tree.key[:status] = "child")
+		_then
+			i_display_tree.selected? << _false
+		_else
+			.items[:p_ur2]<< {{:ur2,i_display_tree.key[:rc]}}
+		_endif 
+	_endloop
+	_self.changed(:anything_selected?, _not p_selection.empty?)
+_endmethod
+$
+
 _pragma(classify_level=restricted)
 _method rw_ur_cables_dialog.items
 	##
