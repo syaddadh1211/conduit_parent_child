@@ -394,18 +394,21 @@ _pragma(classify_level=basic, topic={tree_item})
 _method rw_ur_cables_dialog.selected(p_selection)
 	## Check if there is anything selected, and notify this to
 	## update other controls
-	_for i_display_tree _over p_selection.elements()
-	_loop		
-		_if (status << i_display_tree.key[:status] = "child")
-		_then
-			i_display_tree.selected? << _false
-		_elif (status << i_display_tree.key[:status] = "parent")
-		_then 
-			.items[:p_ur1]<< {{:ur1,i_display_tree.key[:rc]}}
-		_else
-			.items[:p_ur1]<< _unset 			
-		_endif 
-	_endloop
+	_try 
+		_for i_display_tree _over p_selection.elements()
+		_loop
+			_if (status << i_display_tree.key[:status] = "child")
+			_then
+				i_display_tree.selected? << _false
+			_elif (status << i_display_tree.key[:status] = "parent")
+			_then 
+				.items[:p_ur1]<< {{:ur1,i_display_tree.key[:rc]}}
+			_endif 
+		_endloop
+	_when does_not_understand
+		.items[:p_ur1]<< _unset 
+	_endtry
+	
 	_self.changed(:anything_selected?, _not p_selection.empty?)
 _endmethod
 $
@@ -522,18 +525,21 @@ _pragma(classify_level=basic, topic={tree_item})
 _method rw_ur_cables_dialog.selected2(p_selection)
 	## Check if there is anything selected, and notify this to
 	## update other controls
-	_for i_display_tree _over p_selection.elements()
-	_loop		
-		_if (status << i_display_tree.key[:status] = "child")
-		_then
-			i_display_tree.selected? << _false
-		_elif (status << i_display_tree.key[:status] = "parent")
-		_then 
-			.items[:p_ur1]<< {{:ur1,i_display_tree.key[:rc]}}
-		_else
-			.items[:p_ur1]<< _unset 			
-		_endif 
+	_try 
+		_for i_display_tree _over p_selection.elements()
+		_loop		
+			_if (status << i_display_tree.key[:status] = "child")
+			_then
+				i_display_tree.selected? << _false
+			_elif (status << i_display_tree.key[:status] = "parent")
+			_then 
+				.items[:p_ur2]<< {{:ur2,i_display_tree.key[:rc]}}					
+			_endif 
 	_endloop
+	_when does_not_understand
+		.items[:p_ur2]<< _unset 
+	_endtry
+	
 	_self.changed(:anything_selected?, _not p_selection.empty?)
 _endmethod
 $
