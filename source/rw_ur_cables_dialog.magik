@@ -403,7 +403,17 @@ _method rw_ur_cables_dialog.int!tree_list(p_size, _optional c_parent,  p_parent)
 	_local l_list << rope.new(p_size)
 
 	tk << {:conduit_p_c, :ui_resources}
-	
+
+#	_local l_display_tree << display_tree.new("Parent", _unset, p_parent)
+#	l_display_tree.styled_string << {:image, :default ,"Parent1"}
+#
+#	_local l_display_tree1 << display_tree.new("Child", _unset, l_display_tree)
+#	l_display_tree1.styled_string << {:image, :default , "Syaddad"}
+#
+#	l_list.add(l_display_tree)
+#		
+#	_return  l_list
+		
 	_for i _over c_parent.fast_elements()
 	_loop
 	
@@ -423,8 +433,13 @@ _method rw_ur_cables_dialog.int!tree_list(p_size, _optional c_parent,  p_parent)
 #				l_list.add(l_display_tree)
 #			_endif		
 #		_endloop
+#	_self.int!tree_list(1, l_display_tree)
+#	l_list.add(l_display_tree)
+		_local l_display_tree1 << display_tree.new("Child", _unset, l_display_tree)
+		l_display_tree1.styled_string << {:image, :default , i.name}
+
 		l_list.add(l_display_tree)
-			   
+		
 	_endloop
 
 	
