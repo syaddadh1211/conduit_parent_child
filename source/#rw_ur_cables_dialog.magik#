@@ -394,13 +394,12 @@ _pragma(classify_level=basic, topic={tree_item})
 _method rw_ur_cables_dialog.selected(p_selection)
 	## Check if there is anything selected, and notify this to
 	## update other controls
-		_for i_display_tree _over p_selection.elements()
-	_loop
-#		_if i_display_tree.key.includes?(%e)
-#		_then
-#			i_display_tree.selected? << _false 
-#		_endif
-		write(i_display_tree.key[:name])
+	_for i_display_tree _over p_selection.elements()
+	_loop		
+		_if (status << i_display_tree.key[:status] = "child")
+		_then
+			i_display_tree.selected? << _false 
+		_endif 
 	_endloop
 	_self.changed(:anything_selected?, _not p_selection.empty?)
 _endmethod
