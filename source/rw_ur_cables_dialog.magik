@@ -329,7 +329,8 @@ _method rw_ur_cables_dialog.tree_list
 	## painters as child-trees.
 
 	c_parent << rope.new()	
-
+	write(.table_list.size)
+	
 	# use a set to filter duplicates
 	_for a_rec _over .table_list.fast_elements()
 	_loop
@@ -368,7 +369,7 @@ _method rw_ur_cables_dialog.int!tree_list(p_size, _optional c_parent,  p_parent)
 	## styled string displaying the default image scheme and,
 	## if P_SIZE > 1, has max P_SIZE-1 children.
 	#	_local l_list << rope.new_for(p_size)
-	_local l_list << rope.new(p_size)
+	_local l_list << rope.new()
 
 	tk << {:conduit_p_c, :ui_resources}
 
@@ -511,8 +512,7 @@ _method rw_ur_cables_dialog.int!tree_list2(p_size, _optional c_parent,  p_parent
 	## styled string displaying the default image scheme and,
 	## if P_SIZE > 1, has max P_SIZE-1 children.
 	#	_local l_list << rope.new_for(p_size)
-	_local l_list << rope.new(p_size)
-
+	_local l_list << rope.new()
 	tk << {:conduit_p_c, :ui_resources}
 
 	_for i _over c_parent.fast_elements()
@@ -635,8 +635,7 @@ _method rw_ur_cables_dialog.clear()
 	## 
 	##
 
-	_self.changed(:tree_list, :refresh)
-	_self.changed(:tree_list2, :refresh)
+
 	.records.empty()
 	.current_selection_ur1 << _unset 
 	.current_selection_ur2 << _unset
@@ -658,6 +657,11 @@ _method rw_ur_cables_dialog.clear()
 	.items[:goto2].enabled? << _false
 	.items[:goto_int1].enabled? << _false
 	.items[:goto_int2].enabled? << _false
+
+	.table_list.empty()
+	.table_list2.empty()
+	_self.changed(:tree_list, :refresh)
+	_self.changed(:tree_list2, :refresh)
 _endmethod
 $
 
