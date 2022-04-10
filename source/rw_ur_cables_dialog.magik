@@ -528,13 +528,13 @@ _method rw_ur_cables_dialog.selected2(p_selection)
 	_try 
 		_for i_display_tree _over p_selection.elements()
 		_loop		
-			_if (status << i_display_tree.key[:status] = "child")
-			_then
-				i_display_tree.selected? << _false
-			_elif (status << i_display_tree.key[:status] = "parent")
-			_then 
+##			_if (status << i_display_tree.key[:status] = "child")
+##			_then
+##				i_display_tree.selected? << _false
+##			_elif (status << i_display_tree.key[:status] = "parent")
+##			_then 
 				.items[:p_ur2]<< {{:ur2,i_display_tree.key[:rc]}}					
-			_endif 
+#			_endif 
 	_endloop
 	_when does_not_understand
 		.items[:p_ur2]<< _unset 

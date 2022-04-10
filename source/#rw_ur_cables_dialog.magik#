@@ -317,7 +317,9 @@ _method rw_ur_cables_dialog.build_table_ur1( parent )
 			      :style_holder,  l_style_holder, # gives display trees access to defined image schemes
 			      :aspect,        :tree_list, # also provides the value of the data_selector property
 			      :mode,          :one,
+			      :double_click_notifier, :|double_click_selected()|,
 			      :select_notifier, :|selected()|)
+#			      
 
 _endmethod
 $
@@ -410,6 +412,13 @@ _method rw_ur_cables_dialog.selected(p_selection)
 	_endtry
 	
 	_self.changed(:anything_selected?, _not p_selection.empty?)
+_endmethod
+$
+
+_pragma(classify_level=basic, topic={tree_item})
+_method rw_ur_cables_dialog.double_click_selected(p_selection)
+
+	.engine.goto_conduit(_self, p_selection.key[:rc] )
 _endmethod
 $
 
@@ -533,7 +542,7 @@ _method rw_ur_cables_dialog.selected2(p_selection)
 ##				i_display_tree.selected? << _false
 ##			_elif (status << i_display_tree.key[:status] = "parent")
 ##			_then 
-#				.items[:p_ur2]<< {{:ur2,i_display_tree.key[:rc]}}					
+				.items[:p_ur2]<< {{:ur2,i_display_tree.key[:rc]}}					
 #			_endif 
 	_endloop
 	_when does_not_understand

@@ -282,6 +282,16 @@ _method rw_ur_cables_engine.goto2(a_dialog)
 
 _endmethod
 $
+_pragma(classify_level=restricted)
+_method rw_ur_cables_engine.goto_conduit(a_dialog, p_selection)
+	## 
+	##
+
+	ef << .ed.display_object_in_embedded_editor(p_selection)
+
+
+_endmethod
+$
 
 _pragma(classify_level=restricted)
 _method rw_ur_cables_engine.goto_int1(a_dialog)
