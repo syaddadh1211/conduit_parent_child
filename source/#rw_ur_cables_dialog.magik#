@@ -559,7 +559,7 @@ _method rw_ur_cables_dialog.int!tree_list2(p_size, _optional c_parent,  p_parent
 		_loop		
 			_if (i.is_parent_of?(a_rec)) _is _true _then					
 				_local l_display_tree1 << display_tree.new( property_list.new_with(:name, a_rec.name, :rc, a_rec, :status, "child"), _unset, l_display_tree)
-				_for a_rec1 _over .table_list2.fast_elements()
+				_for a_rec1 _over .table_list.fast_elements()
 				_loop
 					_if a_rec1.id = a_rec.id _then 					
 					l_display_tree1.styled_string << {:image, tk , int_col, a_rec.name + ", " + a_rec.spec_id }	
@@ -608,7 +608,7 @@ _method rw_ur_cables_dialog.pre_selected2(p_selection)
 	
 	_for i_display_tree _over p_selection.elements()
 	_loop
-		_for a_rec2 _over .table_list2.fast_elements()
+		_for a_rec2 _over .table_list.fast_elements()
 		_loop		
 			_if i_display_tree.key[:rc].id = a_rec2.id
 			_then 						

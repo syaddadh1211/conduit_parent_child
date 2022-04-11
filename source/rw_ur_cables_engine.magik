@@ -26,13 +26,13 @@ def_slotted_exemplar(:rw_ur_cables_engine,
 		{ :ed,               _unset },
 		{ :ev,               _unset },
 	#	{ :records,          _unset },
-		{ :rekom,          _unset },
-		{ :tin,              _unset },
-		{ :tin_sub,          _unset },
-		{ :world_for_draw,   _unset },
-		{ :thread_engine,    _unset },
-		{ :current_trail,    _unset },
-		{ :result_geometries, _unset},
+#		{ :rekom,          _unset },
+#		{ :tin,              _unset },
+#		{ :tin_sub,          _unset },
+#		{ :world_for_draw,   _unset },
+#		{ :thread_engine,    _unset },
+#		{ :current_trail,    _unset },
+#		{ :result_geometries, _unset},
 		{ :show_results,     _unset },
 		{:engine, _unset}
 	},{:model})
@@ -119,7 +119,7 @@ _method rw_ur_cables_engine.get_ur2(a_dialog)
 	##
 	
 	sel << .mapman.current_map.current_selection
-	
+
 	_if sel.empty? _is _false _then
 		_if sel.size > 1 _then
 			.owner.show_alert("Check Selection Object. Make Sure only 1 Underground Route Selected")		
@@ -136,6 +136,7 @@ _method rw_ur_cables_engine.get_ur2(a_dialog)
 				
 					_else 
 						a_dialog.records.add(an_rwo)
+							
 						#.items[:ur2].text_items << {{:ur1,an_rwo.id.write_string}}
 						a_dialog.items[:ur2].text_items << {{:id,an_rwo.id.write_string},{:name,"Name : "+an_rwo.name.write_string.default("")},{:width,"Width : "+an_rwo.width.write_string}}
 						a_dialog.items[:add_ur2].enabled? << _false
@@ -166,14 +167,20 @@ _method rw_ur_cables_engine.int!get_result(a_dialog)
 		.owner.show_alert("Select 1 object underground route")
 		_return 
 	_endif
-	
 
-	_self.get_data_ur(a_dialog)
-	
+	(result, reason) << a_dialog.records[1].can_merge_all_cables?(a_dialog.records[2])
+	_if result
+	_then
+		_self.get_data_ur(a_dialog)	
 		#_self.get_data_ur1(.records[1])
 		#_self.get_data_ur2(.records[2])
-
 	
+	_else
+
+		.owner.show_alert(reason)
+		_return 
+
+	_endif 
 _endmethod
 $
 
@@ -346,7 +353,7 @@ _method rw_ur_cables_engine.check_merge(a_dialog)
 	##
 	##
 	# items, current_selection_ur1, current_selection_ur2
-
+	
 	a_dialog.changed(:tree_list, :refresh)
 	a_dialog.changed(:tree_list2, :refresh)
 	dt1 << a_dialog.items[:p_ur1]
